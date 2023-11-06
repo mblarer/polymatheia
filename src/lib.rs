@@ -9,8 +9,10 @@
 //! 1. **Independence.** The crate should only depend on the `std` library.
 //!
 //! The crate currently implements:
-//! - Fibonacci sequence generation
 //! - Euclidean GCD algorithm
+//! - Fibonacci sequence generation
+//! - Rational numbers
 pub mod euclid;
 pub mod fibonacci;
+pub mod rational;
 pub mod traits;
