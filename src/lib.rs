@@ -10,5 +10,7 @@
 //!
 //! The crate currently implements:
 //! - Fibonacci sequence generation
+//! - Euclidean GCD algorithm
+pub mod euclid;
 pub mod fibonacci;
 pub mod traits;
