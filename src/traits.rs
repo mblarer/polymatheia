@@ -42,58 +42,82 @@ impl<T: CheckedAdd<Output = T>> CheckedAdd for Option<T> {
     }
 }
 
-macro_rules! identity_impl {
-    ($trait:ident, $method:ident, $type:ty, $value:expr) => {
-        impl $trait for $type {
-            fn $method() -> Self {
+/// The additive identity, `0`.
+pub trait Zero {
+    /// Returns the additive identity, `0`.
+    fn zero() -> Self;
+
+    /// Returns `true` if `self` is the additive identity, `0`.
+    fn is_zero(&self) -> bool;
+}
+
+macro_rules! zero_impl {
+    ($type:ty, $value:expr) => {
+        impl Zero for $type {
+            fn zero() -> Self {
                 $value
+            }
+
+            fn is_zero(&self) -> bool {
+                *self == $value
             }
         }
     };
 }
 
-/// The additive identity, `0`.
-pub trait Zero {
-    /// Returns the additive identity, `0`.
-    fn zero() -> Self;
-}
+zero_impl!(u8, 0);
+zero_impl!(u16, 0);
+zero_impl!(u32, 0);
+zero_impl!(u64, 0);
+zero_impl!(u128, 0);
+zero_impl!(usize, 0);
 
-identity_impl!(Zero, zero, u8, 0);
-identity_impl!(Zero, zero, u16, 0);
-identity_impl!(Zero, zero, u32, 0);
-identity_impl!(Zero, zero, u64, 0);
-identity_impl!(Zero, zero, u128, 0);
-identity_impl!(Zero, zero, usize, 0);
+zero_impl!(i8, 0);
+zero_impl!(i16, 0);
+zero_impl!(i32, 0);
+zero_impl!(i64, 0);
+zero_impl!(i128, 0);
+zero_impl!(isize, 0);
 
-identity_impl!(Zero, zero, i8, 0);
-identity_impl!(Zero, zero, i16, 0);
-identity_impl!(Zero, zero, i32, 0);
-identity_impl!(Zero, zero, i64, 0);
-identity_impl!(Zero, zero, i128, 0);
-identity_impl!(Zero, zero, isize, 0);
-
-identity_impl!(Zero, zero, f32, 0.0);
-identity_impl!(Zero, zero, f64, 0.0);
+zero_impl!(f32, 0.0);
+zero_impl!(f64, 0.0);
 
 /// The multiplicative identity, `1`.
 pub trait One {
-    /// Returns the additive identity, `1`.
+    /// Returns the multiplicative identity, `1`.
     fn one() -> Self;
+
+    /// Returns `true` if `self` is the multiplicative identity, `1`.
+    fn is_one(&self) -> bool;
 }
 
-identity_impl!(One, one, u8, 1);
-identity_impl!(One, one, u16, 1);
-identity_impl!(One, one, u32, 1);
-identity_impl!(One, one, u64, 1);
-identity_impl!(One, one, u128, 1);
-identity_impl!(One, one, usize, 1);
+macro_rules! one_impl {
+    ($type:ty, $value:expr) => {
+        impl One for $type {
+            fn one() -> Self {
+                $value
+            }
 
-identity_impl!(One, one, i8, 1);
-identity_impl!(One, one, i16, 1);
-identity_impl!(One, one, i32, 1);
-identity_impl!(One, one, i64, 1);
-identity_impl!(One, one, i128, 1);
-identity_impl!(One, one, isize, 1);
+            fn is_one(&self) -> bool {
+                *self == $value
+            }
+        }
+    };
+}
 
-identity_impl!(One, one, f32, 1.0);
-identity_impl!(One, one, f64, 1.0);
+one_impl!(u8, 1);
+one_impl!(u16, 1);
+one_impl!(u32, 1);
+one_impl!(u64, 1);
+one_impl!(u128, 1);
+one_impl!(usize, 1);
+
+one_impl!(i8, 1);
+one_impl!(i16, 1);
+one_impl!(i32, 1);
+one_impl!(i64, 1);
+one_impl!(i128, 1);
+one_impl!(isize, 1);
+
+one_impl!(f32, 1.0);
+one_impl!(f64, 1.0);
