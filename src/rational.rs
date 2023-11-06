@@ -3,7 +3,7 @@
 use crate::{euclid, traits::Zero};
 use std::{
     cmp::Ordering,
-    ops::{DivAssign, Mul, SubAssign},
+    ops::{DivAssign, Mul, RemAssign},
 };
 
 /// A ratio of two numbers, `n / d`, where `n` is called the numerator and `d` the denominator.
@@ -16,7 +16,7 @@ pub struct Ratio<T> {
 // Public methods.
 impl<T> Ratio<T>
 where
-    T: Clone + Zero + Ord + for<'a> SubAssign<&'a T> + for<'b> DivAssign<&'b T>,
+    T: Clone + Zero + for<'a> RemAssign<&'a T> + for<'b> DivAssign<&'b T>,
 {
     /// Creates a new `Ratio` from a numerator and a denominator.
     ///
@@ -105,7 +105,7 @@ where
 // Private methods.
 impl<T> Ratio<T>
 where
-    T: Clone + Zero + Ord + for<'a> SubAssign<&'a T> + for<'b> DivAssign<&'b T>,
+    T: Clone + Zero + for<'a> RemAssign<&'a T> + for<'b> DivAssign<&'b T>,
 {
     // Reduces the ratio.
     fn reduce(&mut self) {

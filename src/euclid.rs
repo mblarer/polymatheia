@@ -1,7 +1,7 @@
 //! Euclidean algorithms.
 
 use crate::traits::Zero;
-use std::{cmp::Ordering, ops::SubAssign};
+use std::ops::RemAssign;
 
 /// Computes the greatest common divisor (GCD) of two integers.
 ///
@@ -21,21 +21,16 @@ use std::{cmp::Ordering, ops::SubAssign};
 /// ```
 pub fn gcd<T>(mut a: T, mut b: T) -> Option<T>
 where
-    T: Zero + Ord + for<'a> SubAssign<&'a T>,
+    T: Zero + for<'a> RemAssign<&'a T>,
 {
     if a.is_zero() && b.is_zero() {
         return None;
-    } else if a.is_zero() {
-        return Some(b);
-    } else if b.is_zero() {
-        return Some(a);
     }
 
-    loop {
-        match Ord::cmp(&a, &b) {
-            Ordering::Equal => return Some(a),
-            Ordering::Greater => a -= &b,
-            Ordering::Less => b -= &a,
-        };
+    while !b.is_zero() {
+        a %= &b;
+        (a, b) = (b, a);
     }
+
+    Some(a)
 }
