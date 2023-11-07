@@ -1,4 +1,4 @@
-//! Mathematical functions, types, traits, and algorithms in pure and safe Rust.
+//! Mathematical types, traits, and algorithms in pure and safe Rust.
 //!
 //! The crate's name, polymatheia, means "much knowledge" in ancient greek.
 //!
