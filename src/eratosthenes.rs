@@ -1,7 +1,5 @@
 //! Prime generation and factorization using the Sieve of Eratosthenes.
 
-use std::collections::BTreeMap;
-
 /// Creates a prime sieve for primes up to the given `limit`.
 pub fn sieve(limit: usize) -> Sieve {
     let primes = Vec::new();
@@ -67,23 +65,45 @@ impl Sieve {
     /// assert_eq!(sieve.prime_factorization(24), vec![(2, 3), (3, 1)]);
     /// ```
     pub fn prime_factorization(&mut self, mut n: usize) -> Vec<(usize, usize)> {
+        let mut factorization: Vec<(usize, usize)> = Vec::new();
+
+        for p in self.prime_factors(n) {
+            let mut e = 0;
+            while n % p == 0 {
+                n /= p;
+                e += 1;
+            }
+            factorization.push((p, e));
+        }
+
+        factorization
+    }
+
+    /// Creates an iterator over the unique prime factors of `n`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `n` is zero or larger than the sieve's limit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use polymatheia::eratosthenes;
+    ///
+    /// let mut sieve = eratosthenes::sieve(550);
+    ///
+    /// assert_eq!(sieve.prime_factors(1).collect::<Vec<_>>(), vec![]);
+    /// assert_eq!(sieve.prime_factors(17).collect::<Vec<_>>(), vec![17]);
+    /// assert_eq!(sieve.prime_factors(550).collect::<Vec<_>>(), vec![2, 5, 11]);
+    /// ```
+    pub fn prime_factors<'a>(&'a mut self, n: usize) -> PrimeFactors<'a> {
         let limit = self.is_composite.len() - 1;
         assert!(0 < n && n <= limit);
 
-        let mut factorization: BTreeMap<usize, usize> = BTreeMap::new();
-        for p in self.primes() {
-            if n == 1 {
-                break;
-            }
+        let primes = self.primes();
+        let is_done = false;
 
-            while n % p == 0 {
-                n /= p;
-
-                *factorization.entry(p).or_insert(0) += 1;
-            }
-        }
-
-        factorization.into_iter().collect()
+        PrimeFactors { n, primes, is_done }
     }
 
     /// Counts the number of divisors of `n`.
@@ -109,6 +129,32 @@ impl Sieve {
             .map(|(_, exp)| exp + 1)
             .product()
     }
+
+    /// Euler's totient function. Counts how many natural numbers up to `n` are coprime to `n`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `n` is larger than the sieve's limit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use polymatheia::eratosthenes;
+    ///
+    /// let mut sieve = eratosthenes::sieve(20);
+    ///
+    /// assert_eq!(sieve.euler_totient(0), 0);
+    /// assert_eq!(sieve.euler_totient(1), 1);
+    /// assert_eq!(sieve.euler_totient(17), 16);
+    /// assert_eq!(sieve.euler_totient(20), 8);
+    /// ```
+    pub fn euler_totient(&mut self, n: usize) -> usize {
+        if n > 0 {
+            self.prime_factors(n).fold(n, |n, p| n / p * (p - 1))
+        } else {
+            0
+        }
+    }
 }
 
 /// An iterator over all primes up to the sieve's limit.
@@ -129,6 +175,46 @@ impl Iterator for Primes<'_> {
         self.idx_next_prime += 1;
 
         next_prime
+    }
+}
+
+/// An iterator over all primes factors of `n`.
+pub struct PrimeFactors<'a> {
+    n: usize,
+    primes: Primes<'a>,
+    is_done: bool,
+}
+
+impl Iterator for PrimeFactors<'_> {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.n < 2 || self.is_done {
+            return None;
+        }
+
+        let mut p = self.primes.next()?;
+        let is_first_factor = p == 2;
+
+        loop {
+            if self.n % p == 0 {
+                return Some(p);
+            }
+
+            let p_square = p.checked_mul(p);
+
+            if p_square.is_none() || p_square.unwrap() > self.n {
+                if is_first_factor {
+                    // `n` is prime.
+                    self.is_done = true;
+                    return Some(self.n);
+                } else {
+                    return None;
+                }
+            }
+
+            p = self.primes.next()?;
+        }
     }
 }
 

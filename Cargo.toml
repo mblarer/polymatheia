@@ -1,6 +1,6 @@
 [package]
 name = "polymatheia"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Mathias Blarer <mblarer@protonmail.ch>"]
 edition = "2021"
 description = "Mathematical types, traits, and algorithms in pure and safe Rust."
