@@ -93,6 +93,7 @@ impl Sieve {
     /// let mut sieve = eratosthenes::sieve(550);
     ///
     /// assert_eq!(sieve.prime_factors(1).collect::<Vec<_>>(), vec![]);
+    /// assert_eq!(sieve.prime_factors(14).collect::<Vec<_>>(), vec![2, 7]);
     /// assert_eq!(sieve.prime_factors(17).collect::<Vec<_>>(), vec![17]);
     /// assert_eq!(sieve.prime_factors(550).collect::<Vec<_>>(), vec![2, 5, 11]);
     /// ```
@@ -101,9 +102,8 @@ impl Sieve {
         assert!(0 < n && n <= limit);
 
         let primes = self.primes();
-        let is_done = false;
 
-        PrimeFactors { n, primes, is_done }
+        PrimeFactors { n, primes }
     }
 
     /// Counts the number of divisors of `n`.
@@ -145,12 +145,13 @@ impl Sieve {
     ///
     /// assert_eq!(sieve.euler_totient(0), 0);
     /// assert_eq!(sieve.euler_totient(1), 1);
+    /// assert_eq!(sieve.euler_totient(14), 6);
     /// assert_eq!(sieve.euler_totient(17), 16);
     /// assert_eq!(sieve.euler_totient(20), 8);
     /// ```
     pub fn euler_totient(&mut self, n: usize) -> usize {
         if n > 0 {
-            self.prime_factors(n).fold(n, |n, p| n / p * (p - 1))
+            self.prime_factors(n).fold(n, |m, p| m / p * (p - 1))
         } else {
             0
         }
@@ -182,38 +183,20 @@ impl Iterator for Primes<'_> {
 pub struct PrimeFactors<'a> {
     n: usize,
     primes: Primes<'a>,
-    is_done: bool,
 }
 
 impl Iterator for PrimeFactors<'_> {
     type Item = usize;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.n < 2 || self.is_done {
-            return None;
-        }
-
-        let mut p = self.primes.next()?;
-        let is_first_factor = p == 2;
-
         loop {
-            if self.n % p == 0 {
+            let p = self.primes.next()?;
+
+            if p > self.n {
+                return None;
+            } else if self.n % p == 0 {
                 return Some(p);
             }
-
-            let p_square = p.checked_mul(p);
-
-            if p_square.is_none() || p_square.unwrap() > self.n {
-                if is_first_factor {
-                    // `n` is prime.
-                    self.is_done = true;
-                    return Some(self.n);
-                } else {
-                    return None;
-                }
-            }
-
-            p = self.primes.next()?;
         }
     }
 }
