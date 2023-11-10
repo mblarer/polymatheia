@@ -12,6 +12,8 @@
 //! - Euclidean GCD algorithm
 //! - Fibonacci sequence generation
 //! - Rational numbers
+//! - Sieve of Eratosthenes prime generation and factorization
+pub mod eratosthenes;
 pub mod euclid;
 pub mod fibonacci;
 pub mod rational;
